@@ -1,0 +1,9 @@
+{
+  "name": "herDB-client",
+  "version": "0.1.1",
+  "dependencies": {
+    "bluebird": "^3.4.0",
+    "node-uuid": "^1.4.7"
+  },
+  "devDependencies": {}
+}
