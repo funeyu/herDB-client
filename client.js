@@ -3,14 +3,18 @@ const uuid = require('uuid/v1');
 var net = require('net');
 
 var Client = function(host, port) {
-  var self = this;
+  this.host = host;
+  this.port = port;
+  this.uuid = uuid();
+}
 
+Client.prototype.init = function() {
+  var self = this;
   return new Promise(function(resolve, reject) {
     var socket = new net.Socket();
-    socket.connect(port, host, function() {
+    socket.connect(self.port, self.host, function() {
 
       self.socket = socket;
-      self.uuid = uuid();
       resolve(self);
     });
 
@@ -26,6 +30,7 @@ Client.prototype.auth = function(password) {
   return new Promise(function(resolve, reject) {
     self.socket.on('data', function(data) {
       self.data = data;
+      console.log(data.toString());
       self.socket.removeListener('data', resolve);
       resolve(self);
     });
@@ -45,11 +50,11 @@ Client.prototype.get = function(key) {
 }
 
 Client.prototype.put = function(key, value) {
-  var self = this;
   this.__sendCommand('put,' + key + ',' + value);
-  return new Promise().then(function() {
-    return self;
-  })
+}
+
+Client.prototype.stopServer = function() {
+  this.__sendCommand('close');
 }
 //
 // writeUInt32BE的方法定义
@@ -66,13 +71,14 @@ Client.prototype.put = function(key, value) {
 // };
 
 Client.prototype.__sendCommand = function(commandInfo) {
-  var commandsBuffer = new Buffer(commentsInfo.length + this.uuid.length + 4);
+  var commandsBuffer = new Buffer(commandInfo.length + this.uuid.length + 4);
   // 先是写入uuid
-  commandsBuffer.write(self.uuid);
+  commandsBuffer.write(this.uuid);
   // 再写入命令数据的长度 int 4个字节
-  commandsBuffer.writeUInt32BE(commentsInfo.length, self.uuid.length);
+  commandsBuffer.writeUInt32BE(commandInfo.length, this.uuid.length);
   // 最后写入commandInfo数据
-  commandsBuffer.write(commandInfo);
+  commandsBuffer.write(commandInfo, this.uuid.length + 4);
+  this.socket.write(commandsBuffer);
 }
 
-module.exports = Client;
+module.exports = Client
