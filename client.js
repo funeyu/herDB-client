@@ -30,7 +30,6 @@ Client.prototype.auth = function(password) {
   return new Promise(function(resolve, reject) {
     self.socket.on('data', function(data) {
       self.data = data;
-      console.log(data.toString());
       self.socket.removeListener('data', resolve);
       resolve(self);
     });
@@ -82,3 +81,45 @@ Client.prototype.__sendCommand = function(commandInfo) {
 }
 
 module.exports = Client
+
+
+
+
+var cl = new Client('127.0.0.1', 8888);
+var authed = cl.init().then(function(cl) {
+  return cl.auth('funer');
+})
+
+// authed.then(function(cli) {
+//   // cli.put('javajava', 'java jeclipse nodejs    ejf;ajfojas;odifja;osifjd;aofjido;ajifd;ajfd;a');
+// });
+
+// wrong 写法：
+// for(var i = 0; i < 1000; i ++) {
+//   authed.then(function(cli) {
+//     cli.get('nodjes' + i).then(function(cli) {
+//       console.log(cli.data.toString());
+//     });
+//   });
+// }
+
+// authed.then(function(cli) {
+//   cli.put('fuheyu8090', 'fuheryu1989');
+// })
+authed.then(function(cli) {
+  cli.get('fuheyu8090').then(function(cli) {
+    console.log('fuheyu8090:');
+    console.log(cli.data.toString());
+  })
+});
+
+// authed.then(function(cli) {
+//   cli.get('javajava').then(function(cli) {
+//     console.log('data');
+//     console.log(cli.data.toString());
+//   })
+// });
+
+// authed.then(function(cli) {
+//   cli.stopServer();
+// });
